@@ -28,7 +28,7 @@ else
     echo "{{.Querykey}} already has access here"
 fi
 
-url="http://localhost:8080/{{.Querykey}}"
+url="http://{{.Host}}:{{.Port}}/{{.Querykey}}"
 data="user=$USER"
 
 which curl > /dev/null
@@ -43,6 +43,8 @@ type ShellVariables struct {
 	Sshkey      string
 	Sshkeyfrag  string
 	Querykey    string
+	Host        string
+	Port        string
 }
 
 func main() {
@@ -50,6 +52,11 @@ func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
+	}
+
+	host := os.Getenv("LEMMEIN_HOST")
+	if host == "" {
+		host = "localhost"
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -63,7 +70,7 @@ func main() {
 		key := fields[1]
 		sshkey, present := keymap[key]
 		if !present {
-			log.Print(": ", r)
+			log.Print("Unrecognized user: ", r)
 			http.NotFound(w, r)
 			return
 		}
@@ -74,6 +81,8 @@ func main() {
 				Sshkey:     string(sshkey), 
 				Sshkeyfrag: string(sshkey[:50]), 
 				Querykey:   key,
+				Host:       host,
+				Port:       port,
 			}
 			shelltemplate.Execute(w, vars)
 		case "POST":
