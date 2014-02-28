@@ -28,7 +28,7 @@ else
     echo "{{.Querykey}} already has access here"
 fi
 
-url="http://{{.Host}}:{{.Port}}/{{.Querykey}}"
+url="http://{{.Host}}/{{.Querykey}}"
 data="user=$USER"
 
 which curl > /dev/null
@@ -44,7 +44,6 @@ type ShellVariables struct {
 	Sshkeyfrag  string
 	Querykey    string
 	Host        string
-	Port        string
 }
 
 func main() {
@@ -82,7 +81,6 @@ func main() {
 				Sshkeyfrag: string(sshkey[:50]), 
 				Querykey:   key,
 				Host:       host,
-				Port:       port,
 			}
 			shelltemplate.Execute(w, vars)
 		case "POST":
